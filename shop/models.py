@@ -1,7 +1,7 @@
 from django.db import models
 
-CURRENCY_RUB = 'RUB'
-CURRENCY_EUR = 'EUR'
+CURRENCY_RUB = 'usd'
+CURRENCY_EUR = 'eur'
 
 
 class Item(models.Model):
