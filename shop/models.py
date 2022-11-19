@@ -29,6 +29,9 @@ class Order(models.Model):
         verbose_name = 'Заказ'
         verbose_name_plural = 'заказы'
 
+    def get_price(self):
+        return sum([item.price for item in self.items.all()])
+
 
 class Discount(models.Model):
     pass
