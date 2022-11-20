@@ -35,3 +35,45 @@ class CreatePaymentIntentView(APIView):
             }
         )
         return Response({'client_secret': payment_intent.client_secret})
+
+
+class CartView(APIView):
+    def get_serialized_cart(self, cart):
+        items = []
+        for item_id in cart.keys():
+            items.append(
+                {
+                    'amount': cart.cart[item_id]['amount'],
+                    'item': serializers.ItemSerializer(db_models.Item.objects.get(id=item_id)).data
+                 }
+            )
+        return items
+
+    def get(self, request):
+        cart = Cart(request)
+        return Response({'items': self.get_serialized_cart(cart)})
+
+    def put(self, request):
+        cart = Cart(request)
+        item_add_serializer = serializers.CartItemAddSerializer(request.data)
+        item = db_models.Item.objects.get(id=item_add_serializer.instance.get('item_id'))
+        cart.add(
+            item,
+            amount=item_add_serializer.instance.get('amount'),
+            update_amount=item_add_serializer.instance.get('update_amount')
+        )
+        items = self.get_serialized_cart(cart)
+        return Response({'items': items})
+
+    def patch(self, request):
+        cart = Cart(request)
+        item_remove_serializer = serializers.CartItemRemoveSerializer(request.data)
+        item = db_models.Item.objects.get(id=item_remove_serializer.instance.get('item_id'))
+        cart.remove(item)
+        items = self.get_serialized_cart(cart)
+        return Response({'items': items})
+
+    def delete(self, request):
+        cart = Cart(request)
+        cart.clear()
+        return Response({'items': self.get_serialized_cart(cart)})

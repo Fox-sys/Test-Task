@@ -11,13 +11,13 @@ class Cart:
         self.cart = cart
 
     def __iter__(self):
-        items = self.get_in_cart_items()
         cart = self.cart.copy()
-        for item in items:
-            cart[str(item.id)]['item'] = item
 
-        for item in cart.values():
+        for item in cart:
             yield item
+
+    def keys(self):
+        return self.cart.keys()
 
     def __len__(self):
         return sum(item['amount'] for item in self.cart.values())
@@ -31,7 +31,7 @@ class Cart:
         if update_amount:
             self.cart[item_id]['amount'] = amount
         else:
-            self.cart[item_id]['amount'] = amount
+            self.cart[item_id]['amount'] += amount
         self.save()
 
     def save(self):
@@ -40,7 +40,7 @@ class Cart:
     def remove(self, item: db_models.Item):
         item_id = str(item.id)
         if item_id in self.cart:
-            del self.cart['item_id']
+            del self.cart[item_id]
             self.save()
 
     def get_total_price(self):
@@ -49,6 +49,7 @@ class Cart:
 
     def clear(self):
         del self.session[settings.CART_SESSION_ID]
+        self.cart = {}
         self.save()
 
     def get_in_cart_items(self):
