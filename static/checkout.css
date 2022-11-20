@@ -3,6 +3,12 @@
   box-sizing: border-box;
 }
 
+div.cart > div {
+  display: flex;
+  justify-content: space-between;
+  width: 400%;
+}
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 16px;

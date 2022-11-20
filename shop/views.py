@@ -27,20 +27,16 @@ class CheckoutView(generic.TemplateView):
     def get_context_data(self, **kwargs):
         context_data = super().get_context_data(**kwargs)
         context_data['public_key'] = settings.STRIPE_PUBLIC_KEY
+        context_data['price'] = Cart(self.request).get_total_price() / 100
         return context_data
 
 
 class CreatePaymentIntentView(APIView):
     def post(self, request):
-        item_list_serializer = serializers.ItemListSerializer(request.data)
-        item_ids: list[int] = item_list_serializer.instance.get('item_ids')
-        items = db_models.Item.objects.filter(id__in=item_ids)
-        order = db_models.Order.objects.create()
-        order.items.add(*items)
-        order.save()
+        cart = Cart(request)
 
         payment_intent = stripe.PaymentIntent.create(
-            amount=order.get_price(),
+            amount=cart.get_total_price(),
             currency='usd',
         )
         return Response({'clientSecret': payment_intent.client_secret})
@@ -49,7 +45,7 @@ class CreatePaymentIntentView(APIView):
 class CartView(APIView):
     def get_serialized_cart(self, cart):
         items = []
-        for item_id in cart.keys():
+        for item_id in cart:
             items.append(
                 {
                     'amount': cart.cart[item_id]['amount'],

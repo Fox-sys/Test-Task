@@ -17,18 +17,21 @@
     </div>
     <button id="submit">
         <div class="spinner hidden" id="spinner"></div>
-        <span id="button-text">Pay now</span>
+        <span id="button-text">Pay {{ price }} now</span>
     </button>
     <div id="payment-message" class="hidden"></div>
 </form>
 <script>
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+    }
 </script>
 <script>
     // This is your test publishable API key.
     const stripe = Stripe("{{ public_key }}");
 
-
-    let items = {items: [{amount: 1, item: {id: 1, name: "dasdas", currency: "usd", price: 123123}}]};
     let elements;
 
     initialize();
@@ -38,12 +41,6 @@
         .querySelector("#payment-form")
         .addEventListener("#submit", handleSubmit)
 
-    function getCookie(name) {
-        const value = `; ${document.cookie}`;
-        const parts = value.split(`; ${name}=`);
-        if (parts.length === 2) return parts.pop().split(';').shift();
-    }
-
     // Fetches a payment intent and captures the client secret
     async function initialize() {
         const response = await fetch("{% url 'create_intent' %}", {
@@ -52,8 +49,7 @@
                 "X-CSRFToken": getCookie("csrftoken"),
                 "Accept": "application/json",
                 "Content-Type": "application/json"
-            },
-            body: JSON.stringify({item_ids: [2]}),
+            }
         });
         const {clientSecret} = await response.json();
 
