@@ -1,21 +1,33 @@
 import stripe
 from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from django.conf import settings
+from django.views import generic
 
 from . import models as db_models
-from django.views.generic import DetailView, ListView
-from rest_framework.views import APIView
 from . import serializers
+
 from .utils.cart import Cart
 
 
-class ItemListView(ListView):
+class ItemListView(generic.ListView):
     model = db_models.Item
     template_name = 'shop/item_list.html'
 
 
-class ItemDetailView(DetailView):
+class ItemDetailView(generic.DetailView):
     model = db_models.Item
     template_name = 'shop/item_detail.html'
+
+
+class CheckoutView(generic.TemplateView):
+    template_name = 'shop/checkout.html'
+
+    def get_context_data(self, **kwargs):
+        context_data = super().get_context_data(**kwargs)
+        context_data['public_key'] = settings.STRIPE_PUBLIC_KEY
+        return context_data
 
 
 class CreatePaymentIntentView(APIView):
@@ -30,11 +42,8 @@ class CreatePaymentIntentView(APIView):
         payment_intent = stripe.PaymentIntent.create(
             amount=order.get_price(),
             currency='usd',
-            automatic_payment_methods={
-                'enabled': True
-            }
         )
-        return Response({'client_secret': payment_intent.client_secret})
+        return Response({'clientSecret': payment_intent.client_secret})
 
 
 class CartView(APIView):
