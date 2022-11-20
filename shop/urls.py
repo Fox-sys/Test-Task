@@ -3,7 +3,7 @@ from . import views
 
 
 urlpatterns = [
-    path('item/<int:pk>', views.ItemDetail.as_view(), name='item_detail'),
-    path('items/', views.ItemList.as_view(), name='item_list'),
-    path('create_intent/', views.CreatePaymentIntent.as_view(), name='create_intent')
+    path('item/<int:pk>', views.ItemDetailView.as_view(), name='item_detail'),
+    path('items/', views.ItemListView.as_view(), name='item_list'),
+    path('create_intent/', views.CreatePaymentIntentView.as_view(), name='create_intent')
 ]
