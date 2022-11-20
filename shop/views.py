@@ -15,10 +15,20 @@ class ItemListView(generic.ListView):
     model = db_models.Item
     template_name = 'shop/item_list.html'
 
+    def get_context_data(self, **kwargs):
+        context_data = super().get_context_data(**kwargs)
+        context_data['price'] = Cart(self.request).get_total_price() / 100
+        return context_data
+
 
 class ItemDetailView(generic.DetailView):
     model = db_models.Item
     template_name = 'shop/item_detail.html'
+
+    def get_context_data(self, **kwargs):
+        context_data = super().get_context_data(**kwargs)
+        context_data['price'] = Cart(self.request).get_total_price() / 100
+        return context_data
 
 
 class CheckoutView(generic.TemplateView):
@@ -64,8 +74,8 @@ class CartView(APIView):
         item = db_models.Item.objects.get(id=item_add_serializer.instance.get('item_id'))
         cart.add(
             item,
-            amount=item_add_serializer.instance.get('amount'),
-            update_amount=item_add_serializer.instance.get('update_amount')
+            amount=item_add_serializer.instance.get('amount', 1),
+            update_amount=item_add_serializer.instance.get('update_amount', False)
         )
         items = self.get_serialized_cart(cart)
         return Response({'items': items})
