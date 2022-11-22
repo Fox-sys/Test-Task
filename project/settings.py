@@ -21,6 +21,7 @@ env = environ.Env(
     # set casting, default value
     DEBUG=(bool, False),
     DATABASE_URL=(str, 'sqlite:///db.sqlite3'),
+    STRIPE_WEBHOOK_KEY=(str, '')
 )
 
 environ.Env.read_env('.env')
