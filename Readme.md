@@ -2,20 +2,17 @@
 ## Проект для знакомства с Stripe
 
 ### Зависимости
-- python3.9+
-- python3.9+-venv
-- python3.9+-dev
+- docker
+- docker-compose
 - stripe cli
 
 ### Установка и настройка
-- python3.9 -m venv venv
-- source venv/bin/activate
-- pip install -r requirements.txt
-- заполнить .env файл по примеру из .env.example
-- python manage.py runserver {port}
+- sudo docker-compose up --build
+- stripe listen --forward-to localhost:8000/webhook/stripe/
+- sudo docker-compose exec web python manage.py createsuperuser  
 
 ### Доп пункты тз:
-- Запуск используя Docker -
+- Запуск используя Docker +
 - Использование environment variables +
 - Просмотр Django Моделей в Django Admin панели +
 - Запуск приложения на удаленном сервере, доступном для тестирования -
