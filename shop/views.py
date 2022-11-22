@@ -96,6 +96,11 @@ class CartView(APIView):
         cart.clear()
         return Response({'items': self.get_serialized_cart(cart)})
 
+    def post(self, request):
+        cart = Cart(request)
+        cart.create_order()
+        return Response({'items': self.get_serialized_cart(cart)})
+
 
 class WebHook(APIView):
     @csrf_exempt

@@ -98,7 +98,7 @@
             loading(false);
             document.querySelector("button").disabled = true;
             await fetch("{% url 'cart_view' %}", {
-                method: "DELETE",
+                method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                     'X-CSRFToken': csrftoken
