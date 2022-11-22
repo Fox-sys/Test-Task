@@ -1,7 +1,7 @@
 from django.db import models
 
-CURRENCY_RUB = 'RUB'
-CURRENCY_EUR = 'EUR'
+CURRENCY_RUB = 'usd'
+CURRENCY_EUR = 'eur'
 
 
 class Item(models.Model):
@@ -20,11 +20,22 @@ class Item(models.Model):
 
 class Order(models.Model):
     items = models.ManyToManyField('Item', verbose_name='Предметы')
-    discount = models.ForeignKey('Discount', on_delete=models.SET_NULL, null=True)
+    discount = models.ForeignKey('Discount', on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
-        return f'[{self.id}]: {self.items.objects.count()}'
+        return f'[{self.id}]: {self.items.count()}'
+
+    class Meta:
+        verbose_name = 'Заказ'
+        verbose_name_plural = 'заказы'
+
+    def get_price(self):
+        return sum([item.price for item in self.items.all()])
 
 
 class Discount(models.Model):
     pass
+
+    class Meta:
+        verbose_name = 'Скидка'
+        verbose_name_plural = 'Скидки'

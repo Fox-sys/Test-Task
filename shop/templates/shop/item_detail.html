@@ -1,0 +1,25 @@
+{% extends 'shop/base.html' %}
+{% block title %}Купить товар {{ item.name }}{% endblock %}
+{% block body %}
+<h1>{{ item.name }}</h1>
+<p>{{ item.description }}</p>
+<p>{{ item.price }}</p>
+<button class="add_to_cart">
+    Добавить в карзину
+</button>
+<script>
+    let button=document.querySelector("button.add_to_cart")
+    button.onclick = async () => { await fetch("{% url 'cart_view' %}", {
+        method: "put",
+        headers: {
+            "X-CSRFToken": getCookie("csrftoken"),
+            "Accept": "application/json",
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({item_id: {{ item.id }}})
+    });
+    location.reload();
+    }
+
+</script>
+{% endblock %}

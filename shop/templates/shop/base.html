@@ -1,0 +1,18 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="{% static 'get_cookie.js' %}"></script>
+    {% block css_and_js %}{% endblock %}
+    <title>{% block title %}{% endblock %}</title>
+</head>
+<body>
+<a href="{% url 'item_list' %}">На главную</a>
+<a href="{% url 'checkout_view' %}">Checkout</a>
+<p>Сейчас в карзине товаров на {{ price }}$</p>
+{% block body %}
+
+{% endblock %}
+</body>
+</html>
