@@ -1,4 +1,7 @@
 import stripe
+from django.http import HttpResponse
+from django.views.decorators.csrf import csrf_exempt
+from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -60,7 +63,7 @@ class CartView(APIView):
                 {
                     'amount': cart.cart[item_id]['amount'],
                     'item': serializers.ItemSerializer(db_models.Item.objects.get(id=item_id)).data
-                 }
+                }
             )
         return items
 
@@ -92,3 +95,26 @@ class CartView(APIView):
         cart = Cart(request)
         cart.clear()
         return Response({'items': self.get_serialized_cart(cart)})
+
+
+class WebHook(APIView):
+    @csrf_exempt
+    def post(self, request):
+        payload = request.body
+        sig_header = request.META['HTTP_STRIPE_SIGNATURE']
+
+        try:
+            event = stripe.Webhook.construct_event(
+                payload, sig_header, settings.STRIPE_WEBHOOK_KEY
+            )
+        except ValueError:
+            # Invalid payload
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        except stripe.error.SignatureVerificationError:
+            # Invalid signature
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        if event['type'] == 'charge.succeeded':
+            cart = Cart(request)
+            cart.clear()
+            return Response(status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_200_OK)
