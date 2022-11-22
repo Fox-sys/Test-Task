@@ -19,18 +19,24 @@ class Item(models.Model):
 
 
 class Order(models.Model):
-    items = models.ManyToManyField('Item', verbose_name='Предметы')
     discount = models.ForeignKey('Discount', on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
-        return f'[{self.id}]: {self.items.count()}'
+        return f'[{self.id}]: {self.order_items.count()}'
 
     class Meta:
         verbose_name = 'Заказ'
         verbose_name_plural = 'заказы'
 
-    def get_price(self):
-        return sum([item.price for item in self.items.all()])
+
+class OrderItem(models.Model):
+    item = models.ForeignKey('Item', verbose_name='Пердмет', related_name='order_items',  on_delete=models.CASCADE)
+    order = models.ForeignKey('Order', verbose_name='Заказ', related_name='order_items', on_delete=models.CASCADE)
+    amount = models.PositiveIntegerField('Количество', default=1)
+
+    class Meta:
+        verbose_name = 'Часть заказа'
+        verbose_name_plural = 'Части заказа'
 
 
 class Discount(models.Model):

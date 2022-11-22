@@ -55,3 +55,15 @@ class Cart:
     def get_in_cart_items(self):
         item_ids = list(self.cart.keys())
         return db_models.Item.objects.filter(id__in=item_ids)
+
+    def create_order(self):
+        order = db_models.Order.objects.create()
+        for item_id in self.keys():
+            item = db_models.Item.objects.get(id=int(item_id))
+            new_item = db_models.OrderItem.objects.create(
+                order=order,
+                item=item,
+                amount=self.cart[item_id]['amount']
+            )
+            new_item.save()
+        self.clear()
