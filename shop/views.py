@@ -20,7 +20,7 @@ class ItemListView(generic.ListView):
 
     def get_context_data(self, **kwargs):
         context_data = super().get_context_data(**kwargs)
-        context_data['price'] = Cart(self.request).get_total_price() / 100
+        context_data['price'] = Cart(self.request).get_price() / 100
         return context_data
 
 
@@ -29,8 +29,9 @@ class ItemDetailView(generic.DetailView):
     template_name = 'shop/item_detail.html'
 
     def get_context_data(self, **kwargs):
+        cart = Cart(self.request)
         context_data = super().get_context_data(**kwargs)
-        context_data['price'] = Cart(self.request).get_total_price() / 100
+        context_data['price'] = cart.get_price() / 100
         return context_data
 
 
@@ -38,18 +39,36 @@ class CheckoutView(generic.TemplateView):
     template_name = 'shop/checkout.html'
 
     def get_context_data(self, **kwargs):
+        cart = Cart(self.request)
         context_data = super().get_context_data(**kwargs)
         context_data['public_key'] = settings.STRIPE_PUBLIC_KEY
-        context_data['price'] = Cart(self.request).get_total_price() / 100
+        context_data['price'] = cart.get_price() / 100
+        context_data['tax'] = cart.count_tax() / 100
         return context_data
 
 
-class CreatePaymentIntentView(APIView):
+class PaymentView(APIView):
+    def put(self, request):
+        """Проверка промокода"""
+        promocode = None
+        promocode_get_serializer = serializers.PromocodeGetSerializer(request.data)
+        code = promocode_get_serializer.instance.get('code')
+        try:
+            promocode = db_models.PromoCode.objects.get(code=code)
+        except db_models.PromoCode.DoesNotExist:
+            pass
+        if promocode:
+            return Response(serializers.PromocodeReturnSerializer(instance=promocode).data)
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
     def post(self, request):
+        """Получение payment intent"""
         cart = Cart(request)
+        cart.cart['discount'] = request.data['discount'] * 100
+        cart.save()
 
         payment_intent = stripe.PaymentIntent.create(
-            amount=cart.get_total_price(),
+            amount=round(cart.get_total_price()),
             currency='usd',
         )
         return Response({'clientSecret': payment_intent.client_secret})
