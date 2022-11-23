@@ -10,13 +10,20 @@
         <div id="payment-element">
             <!--Stripe.js injects the Payment Element-->
         </div>
+        <span>Цена товаров в карзине:{{ price }}</span>
         <button id="submit">
             <div class="spinner hidden" id="spinner"></div>
-            <span id="button-text">Pay {{ price }} now</span>
+            <span id="button-text">Pay</span>
         </button>
+        Скидка: <span id="discount">0</span>
+        Налог: <span id="tax">{{ tax }}</span>
+
         <p id="card-error" role="alert"></p>
         <div id="payment-message" class="hidden"></div>
     </form>
+    <input type="text" name="promocode" placeholder="Промокод" id="code" maxlength="15">
+    <button id="check-promocode">Проверить промокод</button>
+
     <script>
         const csrftoken = getCookie("csrftoken");
         // Create an instance of the Stripe object with your publishable API key
@@ -53,15 +60,46 @@
             document.querySelector("#card-error").textContent = event.error ? event.error.message : "";
         });
         var form = document.getElementById("payment-form");
+        document.querySelector("button#check-promocode").onclick = async (event) => {
+            const code = document.querySelector('input#code')
+            const discount = document.querySelector('span#discount')
+            console.log(code.value)
+            try {
+                await fetch("{% url 'payment_view' %}", {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        'X-CSRFToken': csrftoken
+                    },
+                    body: JSON.stringify({code: code.value})
+                }).then((response) => {
+                    return response.json()
+                }).then((data) => {
+                    if (data.is_active) {
+                        discount.innerHTML = "" + (data.amount / 100)
+                    }
+                    else {
+                        discount.innerHTML = "Промокод устарел"
+                    }
+                })
+            }
+            catch (e) {
+                alert('Промокод не найден')
+            }
+
+        }
         form.addEventListener("submit", function (event) {
             event.preventDefault();
             // Complete payment when the submit button is clicked
-            fetch("{% url 'create_intent' %}", {
+            const discount = document.querySelector('span#discount')
+
+            fetch("{% url 'payment_view' %}", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                     'X-CSRFToken': csrftoken
-                }
+                },
+                body: JSON.stringify({'discount': +discount.innerHTML})
             })
                 .then(function (result) {
                     return result.json();
@@ -104,7 +142,8 @@
                     'X-CSRFToken': csrftoken
                 }
             })
-            location.href = {% url 'item_list' %}
+            location.href =
+            {% url 'item_list' %}
         };
         // Show the customer the error from Stripe if their card fails to charge
         var showError = function (errorMsgText) {

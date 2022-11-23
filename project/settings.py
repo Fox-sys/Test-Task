@@ -21,7 +21,8 @@ env = environ.Env(
     # set casting, default value
     DEBUG=(bool, False),
     DATABASE_URL=(str, 'sqlite:///db.sqlite3'),
-    STRIPE_WEBHOOK_KEY=(str, '')
+    STRIPE_WEBHOOK_KEY=(str, ''),
+    TAX_MULTIPLIER=(float, 0)
 )
 
 environ.Env.read_env('.env')
@@ -140,5 +141,8 @@ CART_SESSION_ID = 'cart'
 STRIPE_SECRET_KEY = env('STRIPE_SECRET_KEY')
 STRIPE_PUBLIC_KEY = env('STRIPE_PUBLIC_KEY')
 STRIPE_WEBHOOK_KEY = env('STRIPE_WEBHOOK_KEY')
+
+TAX_MULTIPLIER = env('TAX_MULTIPLIER')
+print(TAX_MULTIPLIER)
 
 stripe.api_key = STRIPE_SECRET_KEY

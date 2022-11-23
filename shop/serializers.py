@@ -16,3 +16,13 @@ class ItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = db_models.Item
         fields = ['id', 'name', 'currency', 'price']
+
+
+class PromocodeGetSerializer(serializers.Serializer):
+    code = serializers.CharField(max_length=15)
+
+
+class PromocodeReturnSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = db_models.PromoCode
+        fields = ['id', 'code', 'amount', 'is_active']

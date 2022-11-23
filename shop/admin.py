@@ -1,6 +1,4 @@
 from django.contrib import admin
-from django.forms import CheckboxSelectMultiple
-from django.db import models
 from . import models as db_models
 
 
@@ -17,13 +15,10 @@ class ItemAdmin(admin.ModelAdmin):
 
 @admin.register(db_models.Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ('__str__', 'id', )
+    list_display = ('__str__', 'id', 'discount', 'tax')
     inlines = [OrderItemInline]
-    formfield_overrides = {
-        models.ManyToManyField: {'widget': CheckboxSelectMultiple},
-    }
 
 
-@admin.register(db_models.Discount)
-class DiscountAdmin(admin.ModelAdmin):
-    list_display = ('__str__', 'id', )
+@admin.register(db_models.PromoCode)
+class PromoCodeAdmin(admin.ModelAdmin):
+    list_display = ['code', 'amount', 'is_active']
