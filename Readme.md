@@ -9,6 +9,7 @@
 ### Установка и настройка
 - sudo docker-compose up --build
 - stripe listen --forward-to localhost:8000/webhook/stripe/
+- sudo docker-compose exec web python manage.py migrate
 - sudo docker-compose exec web python manage.py createsuperuser  
 
 ### Доп пункты тз:
