@@ -1,11 +1,15 @@
 {% extends 'shop/base.html' %}
 {% block title %}Список товаров{% endblock %}
 {% block body %}
-    {% for item in item_list %}
-        <div>
-            <p>{{ item.name }}</p>
-            <p>{{ item.price }}</p>
-            <a href="{% url 'item_detail' pk=item.id %}">Перейти</a>
-        </div>
-    {% endfor %}
+    <div class="content">
+        {% for item in item_list %}
+            <div class="item">
+                <div class="info">
+                    <p>Название: {{ item.name }}</p>
+                    <p>Цена: {{ item.price }}</p>
+                </div>
+                <a href="{% url 'item_detail' pk=item.id %}">Перейти</a>
+            </div>
+        {% endfor %}
+    </div>
 {% endblock %}
