@@ -4,15 +4,31 @@
 <head>
     <meta charset="UTF-8">
     <script src="{% static 'get_cookie.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'header.css' %}">
+    <link rel="stylesheet" href="{% static 'main.css' %}">
     {% block css_and_js %}{% endblock %}
     <title>{% block title %}{% endblock %}</title>
 </head>
 <body>
-<a href="{% url 'item_list' %}">На главную</a>
-<a href="{% url 'checkout_view' %}">Checkout</a>
-<p>Сейчас в карзине товаров на {{ price }}$</p>
-{% block body %}
+<header>
+    <div class="links">
+        <ul>
+            <li><a href="{% url 'item_list' %}">На главную</a></li>
+            <li><a href="{% url 'checkout_view' %}">Checkout</a></li>
+        </ul>
+    </div>
+    <div class="cart">
+        <ul>
+            <li><p>Сейчас в карзине товаров на {{ price }}$</p></li>
+        </ul>
+    </div>
+</header>
+<div class="wrapper">
+    <main>
+        {% block body %}
 
-{% endblock %}
+        {% endblock %}
+    </main>
+</div>
 </body>
 </html>
